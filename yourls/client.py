@@ -19,6 +19,9 @@
 #
 # Author:
 #       Tim Flink <tflink@redhat.com>
+#
+# Updated 2014-11-11 : converted to python 3.x
+#       [hris Keslar <keslar@pobox.com>
 
 """
 .. module:: yourls.client
@@ -28,7 +31,9 @@
 """
 
 import urllib
-import urllib2
+import urllib.request
+import urllib.parse
+import urllib.parse.error
 import json
 from yourls import YourlsError, YourlsOperationError
 
@@ -69,9 +74,9 @@ class YourlsClient():
 
         """
         urlargs = urllib.urlencode(self._make_args(args))
-        req = urllib2.Request(self.apiurl)
-        req.add_data(urlargs)
-        r = urllib2.urlopen(req)
+        req = urllib.request.Request(self.apiurl,urlargs)
+        #req.add_data(urlargs)
+        r = urllib.request.urlopen(req)
         data = r.read()
         return data
 
@@ -95,7 +100,7 @@ class YourlsClient():
         """
         try:
             data = json.loads(self._send_request(args))
-        except urllib2.URLError as error:
+        except urllib.error.URLError as error:
             raise YourlsOperationError(url, str(error))
 
         if 'errorCode' in data:
