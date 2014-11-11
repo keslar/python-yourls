@@ -33,7 +33,7 @@
 import urllib
 import urllib.request
 import urllib.parse
-import urllib.parse.error
+import urllib.error
 import json
 from yourls import YourlsError, YourlsOperationError
 
@@ -73,9 +73,8 @@ class YourlsClient():
         :param args: The arguments to send to YOURLS
 
         """
-        urlargs = urllib.urlencode(self._make_args(args))
-        req = urllib.request.Request(self.apiurl,urlargs)
-        #req.add_data(urlargs)
+        urlargs = urllib.parse.urlencode(self._make_args(args))
+        req = urllib.request.Request(self.apiurl,urlargs.encode('ASCII'))
         r = urllib.request.urlopen(req)
         data = r.read()
         return data
@@ -87,7 +86,7 @@ class YourlsClient():
         :param new_args: Dictionary containing the args to pass on
 
         """
-        return dict(self.std_args.items() + new_args.items())
+        return dict(self.std_args.items() | new_args.items())
 
 
     def _base_request(self, args, url):
@@ -99,7 +98,7 @@ class YourlsClient():
 
         """
         try:
-            data = json.loads(self._send_request(args))
+            data = json.loads(self._send_request(args).decode())
         except urllib.error.URLError as error:
             raise YourlsOperationError(url, str(error))
 
